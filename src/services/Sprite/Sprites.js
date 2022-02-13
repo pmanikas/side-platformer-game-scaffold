@@ -13,7 +13,10 @@ export default class Sprites {
             createImageAsync('assets/images/character-jump-left.png'),
             createImageAsync('assets/images/character-jump-right.png'),
             createImageAsync('assets/images/character-glide-left.png'),
-            createImageAsync('assets/images/character-glide-right.png')
+            createImageAsync('assets/images/character-glide-right.png'),
+            createImageAsync('assets/images/platform.png'),
+            createImageAsync('assets/images/background.png'),
+            createImageAsync('assets/images/hills.png')
         ]);
 
         this.idleLeft = new SpriteItem(images[0], 10);
@@ -24,5 +27,8 @@ export default class Sprites {
         this.jumpRight = new SpriteItem(images[5], 10);
         this.glideLeft = new SpriteItem(images[6], 10);
         this.glideRight = new SpriteItem(images[7], 10);
+        this.platform = new SpriteItem(images[8], 1);
+        this.background = new SpriteItem(images[9], 1);
+        this.hills = new SpriteItem(images[10], 1);
     }
 }

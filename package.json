@@ -6,7 +6,9 @@
     "cross-env": "cross-env",
     "build": "cross-env NODE_ENV=production webpack",
     "build-dev": "webpack",
-    "start": "webpack serve --open"
+    "start": "webpack serve --open",
+    "deploy": "gh-pages -d dist",
+    "predeploy": "PUBLIC_URL=https://pmanikas.github.io/side-platformer-demo npm run build"
   },
   "author": "Pantelis Manikas",
   "license": "MIT",
@@ -26,6 +28,7 @@
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.25.4",
     "file-loader": "^6.2.0",
+    "gh-pages": "^3.2.3",
     "html-webpack-plugin": "^5.3.2",
     "jest": "^26.6.3",
     "mini-css-extract-plugin": "^1.4.1",

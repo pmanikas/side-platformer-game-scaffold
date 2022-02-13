@@ -1,4 +1,3 @@
-import { createImage } from './../../utilities/images.js';
 import GenericObject from './GenericObject.js';
 import Platform from './Platform.js';
 import Player from './Player.js';
@@ -11,10 +10,6 @@ const LEFT_LIMIT = 0.3;
 
 const PLATFORM_HEIGHT = 125;
 const PLATFORM_WIDTH = 580 - 1;
-
-const platformImage = createImage('./../../assets/images/platform.png');
-const bgImage = createImage('./../../assets/images/background.png');
-const hillsImage = createImage('./../../assets/images/hills.png');
 
 export default class World {
     map = [
@@ -33,6 +28,7 @@ export default class World {
     name = 1;
 
     constructor(sprites) {
+        this.sprites = sprites;
         this.player = new Player(sprites);
         this.width = 1024;
         this.height = 768;
@@ -64,7 +60,7 @@ export default class World {
                 const Y = this.height - (PLATFORM_HEIGHT * (i + 1));
 
                 if(point === '_') {
-                    this.platforms.push(this.createPlatform(lastX, Y, platformImage));
+                    this.platforms.push(this.createPlatform(lastX, Y, this.sprites.platform.img));
                     lastX += PLATFORM_WIDTH;
                 }
 
@@ -78,8 +74,8 @@ export default class World {
 
         
         this.decorations = [
-            this.createObject(0, 0, 11643, 768, bgImage),
-            this.createObject(0, this.height - 585, 7545, 592, hillsImage),
+            this.createObject(0, 0, 11643, 768, this.sprites.background.img),
+            this.createObject(0, this.height - 585, 7545, 592, this.sprites.hills.img),
         ];
 
 
