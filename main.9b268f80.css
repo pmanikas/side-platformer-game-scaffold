@@ -1,0 +1,3 @@
+*,*::before,*::after{box-sizing:border-box}body{margin:0}body{display:-ms-flexbox;display:flex;-ms-flex-align:center;align-items:center;-ms-flex-pack:center;justify-content:center;min-height:100vh;background:#111}.wrapper{position:relative}.main{display:-ms-flexbox;display:flex;-ms-flex-align:center;align-items:center;-ms-flex-pack:center;justify-content:center}.header{position:absolute;top:15px;left:0;right:0;display:-ms-flexbox;display:flex;-ms-flex-pack:justify;justify-content:space-between;-ms-flex-align:center;align-items:center;grid-gap:15px;gap:15px;color:#eee;margin:0 15px;font-family:fantasy}
+
+/*# sourceMappingURL=main.9b268f80.css.map*/
