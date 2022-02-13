@@ -1,0 +1,17 @@
+{
+  "editor.tabSize": 4,
+
+  "editor.codeActionsOnSave": { "source.fixAll.eslint": true },
+
+  "eslint.alwaysShowStatus": true,
+  "eslint.format.enable": true,
+  "eslint.run": "onSave",
+  "editor.formatOnSave": false,
+  "eslint.options": {
+    "extensions": [".html", ".js", ".vue", ".jsx"]
+  },
+
+  "html.format.enable": true,
+
+  "javascript.format.enable": false,
+}
