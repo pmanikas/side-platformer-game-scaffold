@@ -74,8 +74,8 @@ export default class World {
 
         
         this.decorations = [
-            this.createObject(0, 0, 11643, 768, this.sprites.background.img),
-            this.createObject(0, this.height - 585, 7545, 592, this.sprites.hills.img),
+            this.createObject(0, 0, this.sprites.background.img),
+            this.createObject(0, this.height - this.sprites.hills.height, this.sprites.hills.img),
         ];
 
 

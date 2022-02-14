@@ -1,18 +1,18 @@
 export default class GenericObject {
-    constructor(x, y, width, height, image) {
+    constructor(x, y, image) {
         this.position = { x, y };
         this.velocity = { x: 0, y: 0 };
         this.image = image;
-        this.width = width;
-        this.height = height;
+        this.width = image.width;
+        this.height = image.height;
     }
 
-    moveRight(speedTune) {
-        this.velocity.x += (5 * speedTune);
+    moveRight(parallaxOffset) {
+        this.velocity.x += (5 * parallaxOffset);
     }
     
-    moveLeft(speedTune) {
-        this.velocity.x -= (5 * speedTune);
+    moveLeft(parallaxOffset) {
+        this.velocity.x -= (5 * parallaxOffset);
     }
 
     get top() { return this.position.y; }

@@ -156,7 +156,7 @@ export default class Player {
 
     handleImageAnimationLoop() {
         if(this.currentImageFrame + 1 === this.image.frames) this.currentImageFrame = 0;
-        else this.currentImageFrame ++;
+        else this.currentImageFrame += 1;
     }
 
     update() {

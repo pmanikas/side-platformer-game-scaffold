@@ -74,7 +74,7 @@ module.exports = {
                     to: '.',
                     globOptions: {
                         // We exclude index.html to avoid conflict with HtmlWebpackPlugin
-                        ignore: ['**/index.html'],
+                        ignore: ['**/index.html', '**/psd'],
                     },
                 },
             ],
