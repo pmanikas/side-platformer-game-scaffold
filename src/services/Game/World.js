@@ -1,4 +1,4 @@
-import GenericObject from './GenericObject.js';
+import Decoration from './Decoration.js';
 import Platform from './Platform.js';
 import Player from './Player.js';
 
@@ -46,15 +46,16 @@ export default class World {
     }
 
     createObject(x, y, width, height, image) {
-        return new GenericObject(x, y, width, height, image);
+        return new Decoration(x, y, width, height, image);
     }
 
     generateMap() {
         this.platforms = [];
-        const map = [...this.map].reverse();
+        this.decorations = [];
+        const map = [...this.map].reverse(); // quck way to build bottom up
 
         map.forEach((row, i) => {
-            let lastX = -30;
+            let lastX = -15;
 
             row.forEach((point) => {
                 const Y = this.height - (PLATFORM_HEIGHT * (i + 1));
@@ -64,7 +65,7 @@ export default class World {
                     lastX += PLATFORM_WIDTH;
                 }
 
-                else if(point.indexOf(' ' >= 0)) {
+                else if(point.indexOf(' ' >= 0)) { // death gaps with sizes
                     const size = point.split(' ')[1];
                     const width = size ? Number(size) * 100 : PLATFORM_WIDTH;
                     lastX += width;
@@ -130,14 +131,12 @@ export default class World {
 
     collideObjectToWorld(object) {
         if(object.left < this.width * LEFT_LIMIT) {
-            if(this.player.direction === 'left') {
-                if(this.scrollOffset >= 0) {
-                    object.position.x = this.width * LEFT_LIMIT;
-                    this.moveOffsetHandler({ dir: 'right' });
-                    object.velocity.x = 0;
-                }
-                if(object.left <= 0) object.position.x = 0;
-
+            if(this.scrollOffset < 0) {
+                if(object.left < 0) object.position.x = 0; 
+            }else{
+                object.position.x = this.width * LEFT_LIMIT;
+                this.moveOffsetHandler({ dir: 'right' });
+                object.velocity.x = 0;
             }
         } else if(object.right > this.width * RIGHT_LIMIT) {
             object.position.x = this.width * RIGHT_LIMIT - object.width;

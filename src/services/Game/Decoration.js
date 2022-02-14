@@ -1,4 +1,4 @@
-export default class GenericObject {
+export default class Decoration {
     constructor(x, y, image) {
         this.position = { x, y };
         this.velocity = { x: 0, y: 0 };
