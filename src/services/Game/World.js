@@ -5,8 +5,8 @@ import Player from './Player.js';
 const GRAVITY = 7;
 const FRICTION = 0.75;
 
-const RIGHT_LIMIT = 0.6;
-const LEFT_LIMIT = 0.3;
+const RIGHT_LIMIT = 0.666;
+const LEFT_LIMIT = 0.333;
 
 const PLATFORM_HEIGHT = 125;
 const PLATFORM_WIDTH = 580 - 1;
@@ -140,7 +140,6 @@ export default class World {
             }
         } else if(object.right > this.width * RIGHT_LIMIT) {
             object.position.x = this.width * RIGHT_LIMIT - object.width;
-            object.velocity.x = 0;
             if(this.player.direction === 'right') {
                 this.moveOffsetHandler({ dir: 'left' });
             }
@@ -182,6 +181,6 @@ export default class World {
 
         this.collideObjectToWorld(this.player);
 
-        if(this.scrollOffset >= 850) this.winHandler();
+        if(this.scrollOffset >= 850) this.winHandler(); // win when hitting specific decoration (compare by decoration name ---> should create decoration name)
     }
 }

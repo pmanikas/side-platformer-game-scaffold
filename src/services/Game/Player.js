@@ -21,7 +21,7 @@ export default class Player {
             y: 0,
         };
         this.position = {
-            x: 100,
+            x: 50,
             y: 0,
         };
         this.hasSuperPower = false;
