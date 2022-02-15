@@ -4,10 +4,6 @@ export default class Player {
     lifes = 3;
     score = 0;
     height = 150;
-    lastDirection = 'right';
-    direction = 'right';
-    airResistance = 0;
-    currentImageFrame = 0;
 
     constructor(sprites) {
         this.sprites = sprites;
@@ -16,16 +12,19 @@ export default class Player {
     }
 
     init() {
+        this.lastDirection = 'right';
+        this.direction = 'right';
+        this.airResistance = 0;
+        this.currentImageFrame = 0;
+        this.hasSuperPower = false;
         this.velocity = {
             x: 0,
             y: 0,
         };
         this.position = {
-            x: 50,
+            x: 0,
             y: 0,
         };
-        this.hasSuperPower = false;
-        this.movingDirection = '';
     }
 
     get specs() {
@@ -112,7 +111,7 @@ export default class Player {
 
     jump() {
         if(this.isTouchingGround) this.velocity.y -= 100;
-        else if(!this.isGliding) this.airResistance = 4;
+        else if(!this.isGliding) this.airResistance = 5;
         else this.airResistance = 0;
     }
 

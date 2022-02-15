@@ -18,7 +18,7 @@ const levelEl = document.querySelector('[data-element=level-value]');
 // / ////////////////
 const sprites = new Sprites();
 
-sprites.loadImages().then(()=> {
+sprites.loadImages().then(() => {
 
     const display = new Display(canvas);
     const controller = new Controller();

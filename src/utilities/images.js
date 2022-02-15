@@ -1,4 +1,4 @@
-import { ruleOfThree } from './generic';
+import { ruleOfThree } from './generic.js';
 
 const createImage = (src) => {
     const image = new Image();

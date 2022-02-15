@@ -9,16 +9,16 @@ const RIGHT_LIMIT = 0.666;
 const LEFT_LIMIT = 0.333;
 
 const PLATFORM_HEIGHT = 125;
-const PLATFORM_WIDTH = 580 - 1;
+const PLATFORM_WIDTH = 580 - 2;
 
 export default class World {
     map = [
         [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'flag'],
         [' ', '_', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '_'],
-        [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '_'],
+        [' ', ' ', ' ', ' ', '_', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '_'],
         [' ', '_', ' ', '_', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '_', ' ', ' ', ' ', ' ', ' ', '_', ' 10', '_', ' '],
         [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-        ['_', '_', '_', ' 1', '_', '_', '_', ' 2', '_', '_', '_', '_', '_', '_', ' 1', '_', '_', '_', '_', '_', '_', '_', '_', ' 10', '_', '_', '_', '_', '_', '_', '_', '_', '_'],
+        ['_', '_', '_', '_', '_', '_', '_', ' ', ' ', '_', '_', '_', '_', '_', ' 1', '_', '_', '_', '_', '_', '_', '_', '_', ' 10', '_', '_', '_', '_', '_', '_', '_', '_', '_'],
     ];
 
     platforms = [];
@@ -45,8 +45,8 @@ export default class World {
         return new Platform(x, y, image);
     }
 
-    createObject(x, y, width, height, image) {
-        return new Decoration(x, y, width, height, image);
+    createDecoration(x, y, image) {
+        return new Decoration(x, y, image);
     }
 
     generateMap() {
@@ -75,8 +75,8 @@ export default class World {
 
         
         this.decorations = [
-            this.createObject(0, 0, this.sprites.background.img),
-            this.createObject(0, this.height - this.sprites.hills.height, this.sprites.hills.img),
+            this.createDecoration(0, 0, this.sprites.background.img),
+            this.createDecoration(0, this.height - this.sprites.hills.height, this.sprites.hills.img),
         ];
 
 
