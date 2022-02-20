@@ -1,27 +1,23 @@
-import Decoration from './Decoration.js';
+import GenericItem from './GenericItem.js';
 import Platform from './Platform.js';
 import Player from './Player.js';
 
 const RIGHT_LIMIT = 0.666;
 const LEFT_LIMIT = 0.333;
 
-const PLATFORM_HEIGHT = 128;
-const PLATFORM_WIDTH = 1024;
+const BLOCK_SIZE = 128;
 
 export default class World {
-    
-
     platforms = [];
-
-    powerUps = [];
-
+    backgrounds = [];
+    decorations = [];
+    scrollOffset = 0;
+    width = 1024;
+    height = 768;
 
     constructor(sprites, level) {
         this.sprites = sprites;
         this.player = new Player(sprites);
-        this.width = 1024;
-        this.height = 768;
-        this.scrollOffset = 0;
         this.level = level;
         this.map = this.level.map;
     }
@@ -32,68 +28,95 @@ export default class World {
         this.player.init();
     }
  
-    createPlatform(x, y, width) {
-        return new Platform(x, y, width, this.sprites.platform.img);
+    createPlatform(x, y, width, type) {
+        let image = '';
+
+        switch (type) {
+        case 'full': image = this.sprites.platformFull.img;
+            break;
+        case 'left': image = this.sprites.platformLeft.img;
+            break;
+        case 'right': image = this.sprites.platformRight.img;
+            break;
+        case 'middle': image = this.sprites.platform.img;
+            break;
+        default: image = this.sprites.platform.img;
+            break;
+        }
+            
+        return new Platform(x, y, width, image);
     }
 
-    createDecoration(x, y, image) {
-        return new Decoration(x, y, image);
+    createGenericItem(x, y, image) {
+        return new GenericItem(x, y, image);
     }
 
     generateMap() {
         this.platforms = [];
-        this.decorations = [];
+
+        this.backgrounds = [
+            this.createGenericItem(0, 0, this.sprites.background.img),
+            this.createGenericItem(0, this.height - this.sprites.hills.height, this.sprites.hills.img),
+        ];
+
         const map = [...this.map].reverse(); // quck way to build bottom up
 
         const xPositions = [-15];
         map.forEach((row, i) => {
             row.forEach((point, j) => {
-                const Y = this.height - (PLATFORM_HEIGHT * (i));
                 if(i === 0) {
-                    xPositions[j + 1] = (point * (PLATFORM_WIDTH / 8)) + xPositions[j];
-                    return;
-                }
-                
-                // console.log(type);
-
-                if(point === '_') {
-                    this.platforms.push(this.createPlatform(xPositions[j], Y, map[0][j] * (PLATFORM_WIDTH / 8)));
+                    xPositions[j + 1] = (point * BLOCK_SIZE) + xPositions[j];
+                    // bottom row in map is only for setting 
+                    // the width of each column 
+                    return; 
                 }
 
+                const X = xPositions[j];
+                const Y = this.height - (BLOCK_SIZE * (i));
+                const width = map[0][j] * BLOCK_SIZE;
 
-                // else if(point.indexOf(' ' >= 0)) { // death gaps with sizes
-                //     const size = point.split(' ')[1];
-                //     const width = size ? Number(size) * 100 : PLATFORM_WIDTH;
-                //     lastX += width;
-                // }
+                switch (point) {
+                case '_':
+                    this.platforms.push(this.createPlatform(X, Y, width, 'middle'));
+                    break;
+                case '{':
+                    this.platforms.push(this.createPlatform(X, Y, width, 'left'));
+                    break;
+                case '}':
+                    this.platforms.push(this.createPlatform(X, Y, width, 'right'));
+                    break;
+                case '#':
+                    this.platforms.push(this.createPlatform(X, Y, width, 'full'));
+                    break;
+                case '~':
+                    this.decorations.push(this.createGenericItem(X, Y, this.sprites.sea.img));
+                    break;
+                default:
+                    break;
+                }
             });
         });
         
-        this.decorations = [
-            this.createDecoration(0, 0, this.sprites.background.img),
-            this.createDecoration(0, this.height - this.sprites.hills.height, this.sprites.hills.img),
-        ];
-
-
 
         // ******************* //
         //    TEST LOCATIONS   //
         // ******************* //
 
         // this.platforms.forEach(platform => platform.position.x -= 12000);
-        // // this.decorations.forEach(decoration => decoration.position.x -= 12000);
+        // // this.backgrounds.forEach(decoration => decoration.position.x -= 12000);
         // this.scrollOffset = 12000 / 20;
         // // ******************* //
         //    TEST LOCATIONS   //
         // ******************* //
+
+
     }
-
-
 
     moveOffsetHandler({ dir }) {
         if(dir === 'left') this.scrollOffset += 1;
         if(dir === 'right') this.scrollOffset -= 1;
         this.movePlatforms({ dir });
+        this.moveBackgrounds({ dir });
         this.moveDecorations({ dir });
     }
 
@@ -104,10 +127,17 @@ export default class World {
         });
     }
 
+    moveBackgrounds({ dir }) {
+        this.backgrounds.forEach((background, i) => {
+            if(dir === 'left') background.moveLeft((i + 0.5) * 0.2);
+            if(dir === 'right') background.moveRight((i + 0.5) * 0.2);
+        });
+    }
+
     moveDecorations({ dir }) {
-        this.decorations.forEach((decor, i) => {
-            if(dir === 'left') decor.moveLeft((i + 0.5) * 0.2);
-            if(dir === 'right') decor.moveRight((i + 0.5) * 0.2);
+        this.decorations.forEach(decor => {
+            if(dir === 'left') decor.moveLeft(1);
+            if(dir === 'right') decor.moveRight(1);
         });
     }
 
@@ -160,6 +190,11 @@ export default class World {
         this.platforms.forEach(platform => {
             platform.update();
             platform.velocity.x *= this.level.friction;
+        });
+
+        this.backgrounds.forEach(background => {
+            background.update();
+            background.velocity.x *= this.level.friction;
         });
 
         this.decorations.forEach(decor => {

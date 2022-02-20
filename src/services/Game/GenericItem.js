@@ -1,4 +1,4 @@
-export default class Decoration {
+export default class GenericItem {
     constructor(x, y, image) {
         this.position = { x, y };
         this.velocity = { x: 0, y: 0 };
@@ -7,13 +7,14 @@ export default class Decoration {
         this.height = image.height;
     }
 
-    moveRight(parallaxOffset) {
+    moveRight(parallaxOffset = 1) {
         this.velocity.x += (5 * parallaxOffset);
     }
     
-    moveLeft(parallaxOffset) {
+    moveLeft(parallaxOffset = 1) {
         this.velocity.x -= (5 * parallaxOffset);
     }
+    
 
     get top() { return this.position.y; }
 

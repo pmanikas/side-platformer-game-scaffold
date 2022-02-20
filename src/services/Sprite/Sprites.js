@@ -16,7 +16,11 @@ export default class Sprites {
             createImageAsync('assets/images/character-glide-right.png'),
             createImageAsync('assets/images/platform.png'),
             createImageAsync('assets/images/background.png'),
-            createImageAsync('assets/images/hills.png')
+            createImageAsync('assets/images/hills.png'),
+            createImageAsync('assets/images/sea.png'),
+            createImageAsync('assets/images/platform-left.png'),
+            createImageAsync('assets/images/platform-right.png'),
+            createImageAsync('assets/images/platform-full.png'),
         ]);
 
         this.idleLeft = new SpriteItem(images[0], 10);
@@ -30,5 +34,9 @@ export default class Sprites {
         this.platform = new SpriteItem(images[8], 1);
         this.background = new SpriteItem(images[9], 1);
         this.hills = new SpriteItem(images[10], 1);
+        this.sea = new SpriteItem(images[11], 1);
+        this.platformLeft = new SpriteItem(images[12], 1);
+        this.platformRight = new SpriteItem(images[13], 1);
+        this.platformFull = new SpriteItem(images[14], 1);
     }
 }

@@ -35,6 +35,8 @@ sprites.loadImages().then(() => {
 
         display.clearCanvas();
 
+        world.backgrounds.forEach((item) => display.drawImage(...item.specs));
+
         world.decorations.forEach((item) => display.drawImage(...item.specs));
     
         world.platforms.forEach((platform) => display.drawCropImage(...platform.specs));
