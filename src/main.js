@@ -25,7 +25,7 @@ sprites.loadImages().then(() => {
     const game = new Game(sprites);
     const engine = new Engine(TIME_STEP, render, update);
 
-    window.pacman = { display, controller, game, engine };
+    // window.pacman = { display, controller, game, engine };
 
     /// ////////////////
     /// / FUNCTIONS ////
@@ -37,7 +37,7 @@ sprites.loadImages().then(() => {
 
         world.decorations.forEach((item) => display.drawImage(...item.specs));
     
-        world.platforms.forEach((platform) => display.drawImage(...platform.specs));
+        world.platforms.forEach((platform) => display.drawCropImage(...platform.specs));
 
         display.drawCropImage(...world.player.specs);
 
@@ -68,12 +68,13 @@ sprites.loadImages().then(() => {
     }
 
     function updateDetailsLayer() {
-        levelEl.innerText = game.world.name;
+        levelEl.innerText = game.world.level.name;
         lifesEl.innerText = game.world.player.lifes;
         scoreEl.innerText = game.world.player.score;
     }
 
     function update() {
+       
         control();
 
         game.update();
@@ -92,21 +93,25 @@ sprites.loadImages().then(() => {
             game.world.height / game.world.width
         );
         display.render();
-    // console.table({width: window.innerWidth, height: window.innerHeight});
     }
 
     /// /////////////////
     /// / INITIALIZE ////
     /// /////////////////
-    display.buffer.canvas.height = game.world.height;
-    display.buffer.canvas.width = game.world.width;
+    
+    
+    game.loadLevel()
+        .then(() => {
+            display.buffer.canvas.height = game.world.height;
+            display.buffer.canvas.width = game.world.width;
 
-    window.addEventListener('keydown', handleKeyDownUp);
-    window.addEventListener('keyup', handleKeyDownUp);
-    window.addEventListener('resize', handleResize);
-
-    engine.start();
-    handleResize();
+            window.addEventListener('keydown', handleKeyDownUp);
+            window.addEventListener('keyup', handleKeyDownUp);
+            window.addEventListener('resize', handleResize);
+        
+            engine.start();
+            handleResize();
+        });
 });
 
 /// ////////////////

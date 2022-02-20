@@ -2,47 +2,38 @@ import Decoration from './Decoration.js';
 import Platform from './Platform.js';
 import Player from './Player.js';
 
-const GRAVITY = 7;
-const FRICTION = 0.75;
-
 const RIGHT_LIMIT = 0.666;
 const LEFT_LIMIT = 0.333;
 
-const PLATFORM_HEIGHT = 125;
-const PLATFORM_WIDTH = 580 - 2;
+const PLATFORM_HEIGHT = 128;
+const PLATFORM_WIDTH = 1024;
 
 export default class World {
-    map = [
-        [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'flag'],
-        [' ', '_', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '_'],
-        [' ', ' ', ' ', ' ', '_', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '_'],
-        [' ', '_', ' ', '_', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '_', ' ', ' ', ' ', ' ', ' ', '_', ' 10', '_', ' '],
-        [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-        ['_', '_', '_', '_', '_', '_', '_', ' ', ' ', '_', '_', '_', '_', '_', ' 1', '_', '_', '_', '_', '_', '_', '_', '_', ' 10', '_', '_', '_', '_', '_', '_', '_', '_', '_'],
-    ];
+    
 
     platforms = [];
 
     powerUps = [];
 
-    name = 1;
 
-    constructor(sprites) {
+    constructor(sprites, level) {
         this.sprites = sprites;
         this.player = new Player(sprites);
         this.width = 1024;
         this.height = 768;
         this.scrollOffset = 0;
+        this.level = level;
+        this.map = this.level.map;
     }
 
     init() {
+        this.scrollOffset = 0;
         this.generateMap();
         this.player.init();
-        this.scrollOffset = 0;
     }
  
-    createPlatform(x, y, image) {
-        return new Platform(x, y, image);
+    createPlatform(x, y, width) {
+        return new Platform(x, y, width, this.sprites.platform.img);
     }
 
     createDecoration(x, y, image) {
@@ -54,25 +45,29 @@ export default class World {
         this.decorations = [];
         const map = [...this.map].reverse(); // quck way to build bottom up
 
+        const xPositions = [-15];
         map.forEach((row, i) => {
-            let lastX = -15;
-
-            row.forEach((point) => {
-                const Y = this.height - (PLATFORM_HEIGHT * (i + 1));
+            row.forEach((point, j) => {
+                const Y = this.height - (PLATFORM_HEIGHT * (i));
+                if(i === 0) {
+                    xPositions[j + 1] = (point * (PLATFORM_WIDTH / 8)) + xPositions[j];
+                    return;
+                }
+                
+                // console.log(type);
 
                 if(point === '_') {
-                    this.platforms.push(this.createPlatform(lastX, Y, this.sprites.platform.img));
-                    lastX += PLATFORM_WIDTH;
+                    this.platforms.push(this.createPlatform(xPositions[j], Y, map[0][j] * (PLATFORM_WIDTH / 8)));
                 }
 
-                else if(point.indexOf(' ' >= 0)) { // death gaps with sizes
-                    const size = point.split(' ')[1];
-                    const width = size ? Number(size) * 100 : PLATFORM_WIDTH;
-                    lastX += width;
-                }
+
+                // else if(point.indexOf(' ' >= 0)) { // death gaps with sizes
+                //     const size = point.split(' ')[1];
+                //     const width = size ? Number(size) * 100 : PLATFORM_WIDTH;
+                //     lastX += width;
+                // }
             });
         });
-
         
         this.decorations = [
             this.createDecoration(0, 0, this.sprites.background.img),
@@ -85,9 +80,10 @@ export default class World {
         //    TEST LOCATIONS   //
         // ******************* //
 
-        // this.platforms.forEach(platform => platform.position.x -= 0);
-
-        // ******************* //
+        // this.platforms.forEach(platform => platform.position.x -= 12000);
+        // // this.decorations.forEach(decoration => decoration.position.x -= 12000);
+        // this.scrollOffset = 12000 / 20;
+        // // ******************* //
         //    TEST LOCATIONS   //
         // ******************* //
     }
@@ -160,22 +156,23 @@ export default class World {
     }
 
     update() {
+        // console.log(this.scrollOffset);
         this.platforms.forEach(platform => {
             platform.update();
-            platform.velocity.x *= FRICTION;
+            platform.velocity.x *= this.level.friction;
         });
 
         this.decorations.forEach(decor => {
             decor.update();
-            decor.velocity.x *= FRICTION;
+            decor.velocity.x *= this.level.friction;
         });
 
         this.player.update();
         
-        this.player.velocity.y += GRAVITY;
+        this.player.velocity.y += this.level.gravity;
         
-        this.player.velocity.x *= FRICTION;
-        this.player.velocity.y *= FRICTION;
+        this.player.velocity.x *= this.level.friction;
+        this.player.velocity.y *= this.level.friction;
         
         this.collideToPlatforms(this.player);
 

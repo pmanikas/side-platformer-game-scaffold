@@ -1,10 +1,10 @@
 export default class Platform {
-    constructor(x, y, image) {
+    constructor(x, y, width, image) {
         this.position = { x, y };
         this.velocity = { x: 0, y: 0 };
         this.image = image;
-        this.width = 580;
-        this.height = 125;
+        this.width = width;
+        this.height = image.height;
     }
 
     moveRight() {
@@ -25,12 +25,18 @@ export default class Platform {
 
     get specs() {
         return [
+            0,
+            0,
+            this.width,
+            this.height,
             this.position.x,
             this.position.y,
             this.width,
             this.height,
             this.image,
         ];
+
+
     }
 
     update() {

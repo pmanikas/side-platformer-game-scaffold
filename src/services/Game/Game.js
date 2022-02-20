@@ -1,18 +1,20 @@
-// import HttpService from '../Http.js';
+import HttpService from '../Http.js';
+import Level from './Level.js';
 import World from './World.js';
 
 export default class Game {
     constructor(sprites) {
-        this.world = new World(sprites);
+        // this.world = new World(sprites);
+        this.sprites = sprites;
         this.currentLevel = 0;
         this.isLevelLoladed = false;
-        this.init();
-        // this.http = http;
-        // this.loadLevel().then(level => this.world = new World(sprites, level));
+        this.isLoadingLevel = false;
+        // this.init();
+        this.http = new HttpService();
     }
 
     init() {
-        // if(!this.isLevelLoladed) return;
+        if(!this.isLevelLoladed) return;
         this.world.init();
     }
 
@@ -20,7 +22,14 @@ export default class Game {
         this.world.update();
     }
 
-    // async loadLevel() {
-    //     return this.http.get('assets/data/level-1.json');
-    // }
+    async loadLevel() {
+        this.isLevelLoladed = false;
+        return this.http.get('assets/data/level-1.json')
+            .then(level => {
+                this.isLevelLoladed = true;
+                this.level = new Level(level);
+                this.world = new World(this.sprites, this.level);
+                this.init();
+            });
+    }
 }
