@@ -1,10 +1,13 @@
 export default class GenericItem {
+    currentImageFrame = 0;
+    
     constructor(x, y, image) {
         this.position = { x, y };
         this.velocity = { x: 0, y: 0 };
         this.image = image;
         this.width = image.width;
         this.height = image.height;
+        console.log(this.image);
     }
 
     moveRight(parallaxOffset = 1) {
@@ -34,7 +37,28 @@ export default class GenericItem {
         ];
     }
 
+    get extendedSpecs() {
+        return [
+            this.image.width * this.currentImageFrame,
+            0,
+            this.image.width,
+            this.image.height,
+            this.position.x, 
+            this.position.y, 
+            this.width, 
+            this.height, 
+            this.image
+        ];
+    }
+
+    handleImageAnimationLoop() {
+        if(this.currentImageFrame + 1 === this.image.frames) this.currentImageFrame = 0;
+        else this.currentImageFrame += 1;
+    }
+
     update() {
+        this.handleImageAnimationLoop();
+
         this.position.x += this.velocity.x;
         this.position.y += this.velocity.y;
     }

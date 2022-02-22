@@ -25,7 +25,7 @@ sprites.loadImages().then(() => {
     const game = new Game(sprites);
     const engine = new Engine(TIME_STEP, render, update);
 
-    // window.pacman = { display, controller, game, engine };
+    window.ninja = { display, controller, game, engine, world: game.world, player: game.world.player };
 
     /// ////////////////
     /// / FUNCTIONS ////
@@ -35,11 +35,17 @@ sprites.loadImages().then(() => {
 
         display.clearCanvas();
 
-        world.backgrounds.forEach((item) => display.drawImage(...item.specs));
+        for (const key in world.backgrounds) {
+            display.drawImage(...world.backgrounds[key].specs);
+        }
 
         world.decorations.forEach((item) => display.drawImage(...item.specs));
     
         world.platforms.forEach((platform) => display.drawCropImage(...platform.specs));
+
+        world.shurikens.forEach((shuriken) => {
+            display.drawCropImage(...shuriken.specs);
+        });
 
         display.drawCropImage(...world.player.specs);
 

@@ -1,6 +1,7 @@
 import GenericItem from './GenericItem.js';
 import Platform from './Platform.js';
 import Player from './Player.js';
+import Shuriken from './Shuriken.js';
 
 const RIGHT_LIMIT = 0.666;
 const LEFT_LIMIT = 0.333;
@@ -11,21 +12,24 @@ export default class World {
     platforms = [];
     backgrounds = [];
     decorations = [];
+    shurikens = [];
     scrollOffset = 0;
-    width = 1024;
-    height = 768;
+    width = 1920;
+    height = 1080;
+    level = null;
+    isWinning = false;
 
-    constructor(sprites, level) {
+    constructor(sprites) {
         this.sprites = sprites;
         this.player = new Player(sprites);
-        this.level = level;
-        this.map = this.level.map;
     }
-
+    
     init() {
+        this.map = this.level.map;
         this.scrollOffset = 0;
         this.generateMap();
         this.player.init();
+        this.isWinning = false;
     }
  
     createPlatform(x, y, width, type) {
@@ -51,17 +55,22 @@ export default class World {
         return new GenericItem(x, y, image);
     }
 
+    createShuriken(x, y) {
+        return new Shuriken(x, y, this.sprites);
+    }
+
     generateMap() {
         this.platforms = [];
 
-        this.backgrounds = [
-            this.createGenericItem(0, 0, this.sprites.background.img),
-            this.createGenericItem(0, this.height - this.sprites.hills.height, this.sprites.hills.img),
-        ];
+        this.backgrounds = {
+            background: this.createGenericItem(0, 0, this.sprites.background.img),
+            hills: this.createGenericItem(0, this.height - this.sprites.hills.height, this.sprites.hills.img),
+            sea: this.createGenericItem(0, this.height - this.sprites.sea.height, this.sprites.sea.img),
+        };
 
         const map = [...this.map].reverse(); // quck way to build bottom up
 
-        const xPositions = [-15];
+        const xPositions = [-16];
         map.forEach((row, i) => {
             row.forEach((point, j) => {
                 if(i === 0) {
@@ -91,6 +100,9 @@ export default class World {
                 case '~':
                     this.decorations.push(this.createGenericItem(X, Y, this.sprites.sea.img));
                     break;
+                case '*':
+                    this.shurikens.push(this.createShuriken(X, Y));
+                    break;
                 default:
                     break;
                 }
@@ -118,6 +130,7 @@ export default class World {
         this.movePlatforms({ dir });
         this.moveBackgrounds({ dir });
         this.moveDecorations({ dir });
+        this.moveShurikens({ dir });
     }
 
     movePlatforms({ dir }) {
@@ -127,11 +140,24 @@ export default class World {
         });
     }
 
-    moveBackgrounds({ dir }) {
-        this.backgrounds.forEach((background, i) => {
-            if(dir === 'left') background.moveLeft((i + 0.5) * 0.2);
-            if(dir === 'right') background.moveRight((i + 0.5) * 0.2);
+    moveShurikens({ dir }) {
+        this.shurikens.forEach(shuriken => {
+            if(dir === 'left') shuriken.moveLeft();
+            if(dir === 'right') shuriken.moveRight();
         });
+    }
+
+    moveBackgrounds({ dir }) {
+        let speed = 1;
+
+        for (const key in this.backgrounds) {
+            if(key === 'background') speed = 0;
+            else if(key === 'hills') speed = 1;
+            else if(key === 'sea') speed = 0;
+            
+            if(dir === 'left') this.backgrounds[key].moveLeft((speed + 0.5) * 0.2);
+            if(dir === 'right') this.backgrounds[key].moveRight((speed + 0.5) * 0.2);
+        }
     }
 
     moveDecorations({ dir }) {
@@ -153,6 +179,22 @@ export default class World {
                 item.velocity.y = 0;
             }
         });
+    }
+    
+    collideToShurikens(player) {
+        for(let i = this.shurikens.length - 1; i >= 0; i--) {
+            const shuriken = this.shurikens[i];
+
+            if(
+                player.top <= shuriken.bottom && 
+                player.bottom >= shuriken.top &&
+                player.right >= shuriken.left &&
+                player.left <= shuriken.right
+            ) {
+                this.shurikens.splice(i, 1);
+                this.player.score ++;
+            }
+        }
     }
 
     collideObjectToWorld(object) {
@@ -182,20 +224,27 @@ export default class World {
     }
 
     winHandler() {
-        console.log('YOU WON');
+        if(!this.isWinning) {
+            console.log('YOU WON');
+            this.isWinning = true;
+        }
     }
 
     update() {
-        // console.log(this.scrollOffset);
         this.platforms.forEach(platform => {
             platform.update();
             platform.velocity.x *= this.level.friction;
         });
 
-        this.backgrounds.forEach(background => {
-            background.update();
-            background.velocity.x *= this.level.friction;
+        this.shurikens.forEach(shuriken => {
+            shuriken.update();
+            shuriken.velocity.x *= this.level.friction;
         });
+        
+        for (const property in this.backgrounds) {
+            this.backgrounds[property].update();
+            this.backgrounds[property].velocity.x *= this.level.friction;
+        }
 
         this.decorations.forEach(decor => {
             decor.update();
@@ -213,6 +262,8 @@ export default class World {
 
         this.collideObjectToWorld(this.player);
 
-        if(this.scrollOffset >= 850) this.winHandler(); // win when hitting specific decoration (compare by decoration name ---> should create decoration name)
+        this.collideToShurikens(this.player);
+
+        if(this.scrollOffset >= 150) this.winHandler(); // win when hitting specific decoration (compare by decoration name ---> should create decoration name)
     }
 }

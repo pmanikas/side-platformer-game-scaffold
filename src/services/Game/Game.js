@@ -2,34 +2,46 @@ import HttpService from '../Http.js';
 import Level from './Level.js';
 import World from './World.js';
 
+const levels = [
+    'assets/data/level-1.json',
+    'assets/data/level-2.json',
+    'assets/data/level-3.json',
+];
+
 export default class Game {
+    http = new HttpService();
+    currentLevel = 0;
+    isLevelLoading = false;
+
     constructor(sprites) {
-        // this.world = new World(sprites);
         this.sprites = sprites;
-        this.currentLevel = 0;
-        this.isLevelLoladed = false;
-        this.isLoadingLevel = false;
-        // this.init();
-        this.http = new HttpService();
+        this.world = new World(this.sprites);
+    }
+    
+    async loadLevel(level = 1) {
+        return this.http.get(levels[level - 1])
+            .then((levelDetails) => {
+                this.currentLevel = level;
+                this.world.level = new Level(levelDetails);
+                this.init();
+                this.isLevelLoading = false;
+            });
     }
 
     init() {
-        if(!this.isLevelLoladed) return;
         this.world.init();
     }
 
+    loadNextLevel() {
+        this.loadLevel(this.currentLevel + 1);
+    }
+    
     update() {
         this.world.update();
-    }
-
-    async loadLevel() {
-        this.isLevelLoladed = false;
-        return this.http.get('assets/data/level-1.json')
-            .then(level => {
-                this.isLevelLoladed = true;
-                this.level = new Level(level);
-                this.world = new World(this.sprites, this.level);
-                this.init();
-            });
+        
+        if(this.world.isWinning && !this.isLevelLoading) {
+            this.isLevelLoading = true;
+            this.loadNextLevel();
+        }
     }
 }

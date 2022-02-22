@@ -21,6 +21,7 @@ export default class Sprites {
             createImageAsync('assets/images/platform-left.png'),
             createImageAsync('assets/images/platform-right.png'),
             createImageAsync('assets/images/platform-full.png'),
+            createImageAsync('assets/images/shuriken.png'),
         ]);
 
         this.idleLeft = new SpriteItem(images[0], 10);
@@ -38,5 +39,6 @@ export default class Sprites {
         this.platformLeft = new SpriteItem(images[12], 1);
         this.platformRight = new SpriteItem(images[13], 1);
         this.platformFull = new SpriteItem(images[14], 1);
+        this.shuriken = new SpriteItem(images[15], 8);
     }
 }

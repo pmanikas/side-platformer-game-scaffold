@@ -111,7 +111,7 @@ export default class Player {
 
     jump() {
         if(this.isTouchingGround) this.velocity.y -= 100;
-        else if(!this.isGliding) this.airResistance = 5;
+        else if(!this.isGliding) this.airResistance = 4;
         else this.airResistance = 0;
     }
 
