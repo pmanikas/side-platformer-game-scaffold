@@ -1,9 +1,9 @@
-import GenericItem from './GenericItem.js';
-import Platform from './Platform.js';
+import Platform from './Objects/Platform.js';
 import Player from './Player.js';
-import Shuriken from './Shuriken.js';
-import Block from './Block.js';
-import { collides, getCollisionDetails } from '../../utilities/collisions.js';
+import Shuriken from './Objects/Shuriken.js';
+import Block from './Objects/Block.js';
+import { collides, getCollisionDetails } from './../../utilities/collisions.js';
+import Object from './Objects/Object.js';
 
 const RIGHT_LIMIT = 0.666;
 const LEFT_LIMIT = 0.333;
@@ -32,34 +32,21 @@ export default class World {
         this.scrollOffset = 0;
         this.generateMap();
         this.player.init();
+        this.player.airResistance = this.level.airResistance;
         this.isWinning = false;
+        console.log(this.level);
     }
  
-    createPlatform(x, y, width, type) {
-        let image = '';
-
-        switch (type) {
-        case 'full': image = this.sprites.platformFull.img;
-            break;
-        case 'left': image = this.sprites.platformLeft.img;
-            break;
-        case 'right': image = this.sprites.platformRight.img;
-            break;
-        case 'middle': image = this.sprites.platform.img;
-            break;
-        default: image = this.sprites.platform.img;
-            break;
-        }
-            
-        return new Platform(x, y, width, image);
+    createPlatform(x, y, width, type) {            
+        return new Platform(x, y, width, type, this.sprites);
     }
 
     createBlock(x, y) {
-        return new Block(x, y, this.sprites);
+        return new Block(x, y, 'large', this.sprites);
     }
 
-    createGenericItem(x, y, image) {
-        return new GenericItem(x, y, image);
+    createGenericObject(x, y, width, height, image) {
+        return new Object(x, y, width, height, image);
     }
 
     createShuriken(x, y) {
@@ -74,15 +61,15 @@ export default class World {
         this.shurikens = [];
 
 
-        this.backgrounds = {
-            background: this.createGenericItem(0, 0, this.sprites.background.img),
-            hills: this.createGenericItem(0, this.height - this.sprites.hills.height, this.sprites.hills.img),
-            sea: this.createGenericItem(0, this.height - this.sprites.sea.height, this.sprites.sea.img),
-        };
+        this.backgrounds = [
+            this.createGenericObject(0, 0, this.sprites.background.width, this.sprites.background.height, this.sprites.background),
+            this.createGenericObject(0, this.height - this.sprites.hills.height, this.sprites.hills.width, this.sprites.hills.height, this.sprites.hills),
+            this.createGenericObject(0, this.height - this.sprites.sea.height, this.sprites.sea.width, this.sprites.sea.height,  this.sprites.sea),
+        ];
 
         const map = [...this.map].reverse(); // quck way to build bottom up
 
-        const xPositions = [-16];
+        const xPositions = [-32];
         map.forEach((row, i) => {
             row.forEach((point, j) => {
                 if(i === 0) {
@@ -112,9 +99,6 @@ export default class World {
                 case '#':
                     this.blocks.push(this.createBlock(X, Y));
                     break;
-                case '~':
-                    this.decorations.push(this.createGenericItem(X, Y, this.sprites.sea.img));
-                    break;
                 case '*':
                     this.shurikens.push(this.createShuriken(X, Y));
                     break;
@@ -135,8 +119,6 @@ export default class World {
         // // ******************* //
         //    TEST LOCATIONS   //
         // ******************* //
-
-
     }
 
     moveOffsetHandler({ dir }) {
@@ -171,16 +153,21 @@ export default class World {
     }
 
     moveBackgrounds({ dir }) {
-        let speed = 1;
+        this.backgrounds.forEach((background, i) =>  {
+            let speed = 1;
 
-        for (const key in this.backgrounds) {
-            if(key === 'background') speed = 0;
-            else if(key === 'hills') speed = 1;
-            else if(key === 'sea') speed = 0;
-            
-            if(dir === 'left') this.backgrounds[key].moveLeft((speed + 0.5) * 0.2);
-            if(dir === 'right') this.backgrounds[key].moveRight((speed + 0.5) * 0.2);
-        }
+            if(i === 0) speed = 0; // background
+            if(i === 1) speed = 1; // hill
+            if(i === 2) speed = 4.5; // sea
+
+            if(dir === 'left') background.moveLeft((speed + 0.5) * 0.2);
+            if(dir === 'right') background.moveRight((speed + 0.5) * 0.2);
+
+            if(background.right < this.width) background.position.x = 0;
+            else if(background.left > 0) {
+                background.position.x = this.width - background.width;
+            }
+        });
     }
 
     moveDecorations({ dir }) {
@@ -215,34 +202,13 @@ export default class World {
             } else if(collision === 'right') {
                 player.position.x = block.left - player.width - player.velocity.x;
             } else if(collision === 'top') {
+                player.position.y = block.bottom;
                 player.velocity.y *= -1;
-                player.position.y = block.bottom - player.velocity.y;
+                console.log('aouts, my head');
             } else if(collision === 'bottom') {
                 player.velocity.y = 0;
                 player.position.y = block.top - player.height + 1;
             }
-
-            // if(collides(player, block)) {
-            //     if(player.top - player.velocity.y <= block.bottom && player.top >= block.top) {
-            //         player.position.y = block.bottom - player.velocity.y;
-            //         player.velocity.y = 0;
-            //     }
-
-            //     else if(player.bottom + player.velocity.y >= block.top && player.bottom <= block.bottom) {
-            //         player.position.y = block.top - player.height + player.velocity.y;
-            //         player.velocity.y = 0;
-            //     }
-
-            //     else if(player.left - player.velocity.x <= block.right && player.left >= block.left) {
-            //         player.position.x = block.right - player.velocity.x;
-            //         player.velocity.x = 0;
-            //     }
-
-            //     else if(player.right + player.velocity.x >= block.left && player.right <= block.right) {
-            //         player.position.x = block.left - player.width - player.velocity.x;
-            //         player.velocity.x = 0;
-            //     }
-            // }
         });
     }
     
@@ -306,10 +272,10 @@ export default class World {
             shuriken.velocity.x *= this.level.friction;
         });
         
-        for (const property in this.backgrounds) {
-            this.backgrounds[property].update();
-            this.backgrounds[property].velocity.x *= this.level.friction;
-        }
+        this.backgrounds.forEach(background => {
+            background.update();
+            background.velocity.x *= this.level.friction;
+        });
 
         this.decorations.forEach(decor => {
             decor.update();
@@ -318,21 +284,16 @@ export default class World {
 
         this.player.update();
         
-        
         this.player.velocity.y += this.level.gravity;
         
         this.player.velocity.x *= this.level.friction;
         this.player.velocity.y *= this.level.friction;
         
         this.collideToBlocks(this.player);
-        
         this.collideToPlatforms(this.player);
-
-
         this.collideObjectToWorld(this.player);
-
         this.collideToShurikens(this.player);
 
-        if(this.scrollOffset >= 150) this.winHandler(); // win when hitting specific decoration (compare by decoration name ---> should create decoration name)
+        if(this.scrollOffset >= 15000) this.winHandler(); // win when hitting specific decoration (compare by decoration name ---> should create decoration name)
     }
 }

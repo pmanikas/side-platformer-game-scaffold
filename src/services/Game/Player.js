@@ -1,11 +1,14 @@
 import { findWidthByRatio } from '../../utilities/images';
+import Object from './Objects/Object';
 
-export default class Player {
+export default class Player extends Object{
     lifes = 3;
     score = 0;
     height = 128;
 
     constructor(sprites) {
+        super();
+        
         this.sprites = sprites;
         this.image = sprites.idleRight;
         this.width = findWidthByRatio({ widthA: this.image.width, heightA: this.image.height, heightB: this.height });
@@ -14,7 +17,8 @@ export default class Player {
     init() {
         this.lastDirection = 'right';
         this.direction = 'right';
-        this.airResistance = 0;
+        this.airResistance = 1;
+        this.currentAirResistance = 0;
         this.currentImageFrame = 0;
         this.hasSuperPower = false;
         this.velocity = {
@@ -94,7 +98,7 @@ export default class Player {
     }
 
     get isGliding() {
-        return this.airResistance > 0;
+        return this.currentAirResistance > 0;
     }
 
     moveRight() {
@@ -110,9 +114,9 @@ export default class Player {
     }
 
     jump() {
-        if(this.isTouchingGround) this.velocity.y -= 120;
-        else if(!this.isGliding) this.airResistance = 4;
-        else this.airResistance = 0;
+        if(this.isTouchingGround) this.velocity.y -= 128;
+        else if(!this.isGliding) this.currentAirResistance = this.airResistance;
+        else this.currentAirResistance = 0;
     }
 
     stop() {
@@ -162,9 +166,9 @@ export default class Player {
         this.handleImageUpdate();
         this.handleImageAnimationLoop();
 
-        if(this.isAboutToTouchGround) this.airResistance = 0;
+        if(this.isAboutToTouchGround) this.currentAirResistance = 0;
 
-        this.velocity.y -= this.airResistance;
+        this.velocity.y -= this.currentAirResistance;
 
         this.position.x += this.velocity.x;
         this.position.y += this.velocity.y;

@@ -1,12 +1,12 @@
-export default class GenericItem {
+export default class Object {
+    velocity = { x: 0, y: 0 };
     currentImageFrame = 0;
-    
-    constructor(x, y, image) {
+
+    constructor(x, y, width, height, image) {
+        this.width = width;
+        this.height = height;
         this.position = { x, y };
-        this.velocity = { x: 0, y: 0 };
         this.image = image;
-        this.width = image.width;
-        this.height = image.height;
     }
 
     moveRight(parallaxOffset = 1) {
@@ -16,7 +16,6 @@ export default class GenericItem {
     moveLeft(parallaxOffset = 1) {
         this.velocity.x -= (5 * parallaxOffset);
     }
-    
 
     get top() { return this.position.y; }
 
@@ -28,25 +27,15 @@ export default class GenericItem {
 
     get specs() {
         return [
+            this.image.width * this.currentImageFrame,
+            0,
+            this.width,
+            this.height,
             this.position.x,
             this.position.y,
             this.width,
             this.height,
-            this.image,
-        ];
-    }
-
-    get extendedSpecs() {
-        return [
-            this.image.width * this.currentImageFrame,
-            0,
-            this.image.width,
-            this.image.height,
-            this.position.x, 
-            this.position.y, 
-            this.width, 
-            this.height, 
-            this.image
+            this.image.img,
         ];
     }
 

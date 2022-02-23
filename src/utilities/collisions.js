@@ -11,12 +11,15 @@ const getCollisionDetails = (object1, object2) => {
     if (collides(object1, object2)) {
         const object1HalfW = object1.width / 2;
         const object1HalfH = object1.height / 2;
+
         const object2HalfW = object2.width / 2;
         const object2HalfH = object2.height / 2;
-        const object1CenterX = object1.position.x + object1.width / 2;
-        const object1CenterY = object1.position.y + object1.height / 2;
-        const object2CenterX = object2.position.x + object2.width / 2;
-        const object2CenterY = object2.position.y + object2.height / 2;
+
+        const object1CenterX = object1.position.x + object1HalfW;
+        const object1CenterY = object1.position.y + object1HalfH;
+
+        const object2CenterX = object2.position.x + object2HalfW;
+        const object2CenterY = object2.position.y + object2HalfH;
   
         // Calculate the distance between centers
         const diffX = object1CenterX - object2CenterX;
@@ -32,7 +35,7 @@ const getCollisionDetails = (object1, object2) => {
   
         // Now that you have the depth, you can pick the smaller depth and move
         // along that axis.
-        if (depthX != 0 && depthY != 0) {
+        if (depthX !== 0 && depthY !== 0) {
             if (Math.abs(depthX) < Math.abs(depthY)) {
                 // Collision along the X axis. React accordingly
                 if (depthX > 0) {
@@ -49,8 +52,6 @@ const getCollisionDetails = (object1, object2) => {
                 }
             }
         }
-    } else {
-        return 'none';
     }
 };
 
