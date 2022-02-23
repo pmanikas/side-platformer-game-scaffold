@@ -7,7 +7,6 @@ export default class GenericItem {
         this.image = image;
         this.width = image.width;
         this.height = image.height;
-        console.log(this.image);
     }
 
     moveRight(parallaxOffset = 1) {

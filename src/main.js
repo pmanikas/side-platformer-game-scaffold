@@ -43,6 +43,8 @@ sprites.loadImages().then(() => {
     
         world.platforms.forEach((platform) => display.drawCropImage(...platform.specs));
 
+        world.blocks.forEach((block) => display.drawCropImage(...block.specs));
+
         world.shurikens.forEach((shuriken) => {
             display.drawCropImage(...shuriken.specs);
         });

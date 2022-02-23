@@ -2,6 +2,8 @@ import GenericItem from './GenericItem.js';
 import Platform from './Platform.js';
 import Player from './Player.js';
 import Shuriken from './Shuriken.js';
+import Block from './Block.js';
+import { collides, getCollisionDetails } from '../../utilities/collisions.js';
 
 const RIGHT_LIMIT = 0.666;
 const LEFT_LIMIT = 0.333;
@@ -10,12 +12,13 @@ const BLOCK_SIZE = 128;
 
 export default class World {
     platforms = [];
+    blocks = [];
     backgrounds = [];
     decorations = [];
     shurikens = [];
     scrollOffset = 0;
-    width = 1920;
-    height = 1080;
+    width = 1024;
+    height = 768;
     level = null;
     isWinning = false;
 
@@ -51,6 +54,10 @@ export default class World {
         return new Platform(x, y, width, image);
     }
 
+    createBlock(x, y) {
+        return new Block(x, y, this.sprites);
+    }
+
     createGenericItem(x, y, image) {
         return new GenericItem(x, y, image);
     }
@@ -61,6 +68,11 @@ export default class World {
 
     generateMap() {
         this.platforms = [];
+        this.backgrounds = null;
+        this.decorations = [];
+        this.blocks = [];
+        this.shurikens = [];
+
 
         this.backgrounds = {
             background: this.createGenericItem(0, 0, this.sprites.background.img),
@@ -94,8 +106,11 @@ export default class World {
                 case '}':
                     this.platforms.push(this.createPlatform(X, Y, width, 'right'));
                     break;
-                case '#':
+                case '+':
                     this.platforms.push(this.createPlatform(X, Y, width, 'full'));
+                    break;
+                case '#':
+                    this.blocks.push(this.createBlock(X, Y));
                     break;
                 case '~':
                     this.decorations.push(this.createGenericItem(X, Y, this.sprites.sea.img));
@@ -128,6 +143,7 @@ export default class World {
         if(dir === 'left') this.scrollOffset += 1;
         if(dir === 'right') this.scrollOffset -= 1;
         this.movePlatforms({ dir });
+        this.moveBlocks({ dir });
         this.moveBackgrounds({ dir });
         this.moveDecorations({ dir });
         this.moveShurikens({ dir });
@@ -137,6 +153,13 @@ export default class World {
         this.platforms.forEach(platform => {
             if(dir === 'left') platform.moveLeft();
             if(dir === 'right') platform.moveRight();
+        });
+    }
+
+    moveBlocks({ dir }) {
+        this.blocks.forEach(block => {
+            if(dir === 'left') block.moveLeft();
+            if(dir === 'right') block.moveRight();
         });
     }
 
@@ -168,7 +191,7 @@ export default class World {
     }
 
     collideToPlatforms(item) {
-        return this.platforms.forEach((platform) => {
+        this.platforms.forEach((platform) => {
             if(
                 item.bottom <= platform.top && 
                 item.bottom + item.velocity.y >= platform.position.y &&
@@ -180,17 +203,54 @@ export default class World {
             }
         });
     }
+
+    collideToBlocks(player) {
+        this.blocks.forEach((block) => {
+            const collision = getCollisionDetails(player, block);
+
+            if (collision === '') return;
+
+            else if(collision === 'left') {
+                player.position.x = block.right - player.velocity.x;
+            } else if(collision === 'right') {
+                player.position.x = block.left - player.width - player.velocity.x;
+            } else if(collision === 'top') {
+                player.velocity.y *= -1;
+                player.position.y = block.bottom - player.velocity.y;
+            } else if(collision === 'bottom') {
+                player.velocity.y = 0;
+                player.position.y = block.top - player.height + 1;
+            }
+
+            // if(collides(player, block)) {
+            //     if(player.top - player.velocity.y <= block.bottom && player.top >= block.top) {
+            //         player.position.y = block.bottom - player.velocity.y;
+            //         player.velocity.y = 0;
+            //     }
+
+            //     else if(player.bottom + player.velocity.y >= block.top && player.bottom <= block.bottom) {
+            //         player.position.y = block.top - player.height + player.velocity.y;
+            //         player.velocity.y = 0;
+            //     }
+
+            //     else if(player.left - player.velocity.x <= block.right && player.left >= block.left) {
+            //         player.position.x = block.right - player.velocity.x;
+            //         player.velocity.x = 0;
+            //     }
+
+            //     else if(player.right + player.velocity.x >= block.left && player.right <= block.right) {
+            //         player.position.x = block.left - player.width - player.velocity.x;
+            //         player.velocity.x = 0;
+            //     }
+            // }
+        });
+    }
     
     collideToShurikens(player) {
         for(let i = this.shurikens.length - 1; i >= 0; i--) {
             const shuriken = this.shurikens[i];
 
-            if(
-                player.top <= shuriken.bottom && 
-                player.bottom >= shuriken.top &&
-                player.right >= shuriken.left &&
-                player.left <= shuriken.right
-            ) {
+            if(collides(player, shuriken)) {
                 this.shurikens.splice(i, 1);
                 this.player.score ++;
             }
@@ -236,6 +296,11 @@ export default class World {
             platform.velocity.x *= this.level.friction;
         });
 
+        this.blocks.forEach(block => {
+            block.update();
+            block.velocity.x *= this.level.friction;
+        });
+
         this.shurikens.forEach(shuriken => {
             shuriken.update();
             shuriken.velocity.x *= this.level.friction;
@@ -253,12 +318,16 @@ export default class World {
 
         this.player.update();
         
+        
         this.player.velocity.y += this.level.gravity;
         
         this.player.velocity.x *= this.level.friction;
         this.player.velocity.y *= this.level.friction;
         
+        this.collideToBlocks(this.player);
+        
         this.collideToPlatforms(this.player);
+
 
         this.collideObjectToWorld(this.player);
 

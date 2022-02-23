@@ -67,7 +67,7 @@ export default class Shuriken {
     }
 
     handleImageAnimationLoop() {
-        if(this.updateCounter % 4 !== 0) return;
+        if(this.updateCounter % 2 !== 0) return;
         if(this.currentImageFrame + 1 === this.image.frames) this.currentImageFrame = 0;
         else this.currentImageFrame += 1;
     }

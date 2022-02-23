@@ -3,7 +3,7 @@ import { findWidthByRatio } from '../../utilities/images';
 export default class Player {
     lifes = 3;
     score = 0;
-    height = 150;
+    height = 128;
 
     constructor(sprites) {
         this.sprites = sprites;
@@ -110,7 +110,7 @@ export default class Player {
     }
 
     jump() {
-        if(this.isTouchingGround) this.velocity.y -= 100;
+        if(this.isTouchingGround) this.velocity.y -= 120;
         else if(!this.isGliding) this.airResistance = 4;
         else this.airResistance = 0;
     }
