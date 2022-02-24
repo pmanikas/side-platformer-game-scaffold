@@ -5,6 +5,7 @@ import Block from './Objects/Block.js';
 import { collides, getCollisionDetails } from './../../utilities/collisions.js';
 import Object from './Objects/Object.js';
 import Sign from './Objects/Sign.js';
+import Monster from './Monster.js';
 
 const RIGHT_LIMIT = 0.666;
 const LEFT_LIMIT = 0.333;
@@ -57,13 +58,17 @@ export default class World {
         return new Sign(x, y, this.sprites);
     }
 
+    createMonster(x, y) {
+        return new Monster(x, y, this.sprites);
+    }
+
     generateMap() {
         this.platforms = [];
         this.backgrounds = null;
         this.decorations = [];
         this.blocks = [];
         this.shurikens = [];
-
+        this.monsters = [];
 
         this.backgrounds = [
             this.createGenericObject(0, 0, this.sprites.background.width, this.sprites.background.height, this.sprites.background),
@@ -109,16 +114,14 @@ export default class World {
                 case '>':
                     this.decorations.push(this.createSignRight(X, Y));
                     break;
-                default:
+                case 'o':
+                    this.monsters.push(this.createMonster(X, Y));
                     break;
                 }
             });
         });
 
         this.finishObject = this.decorations.find(decor => decor.type === 'sign');
-
-        console.log(this.finishObject);
-
         
 
         // ******************* //
@@ -141,6 +144,7 @@ export default class World {
         this.moveBackgrounds({ dir });
         this.moveDecorations({ dir });
         this.moveShurikens({ dir });
+        this.moveMonsters({ dir });
     }
 
     movePlatforms({ dir }) {
@@ -189,6 +193,13 @@ export default class World {
         });
     }
 
+    moveMonsters({ dir }) {
+        this.monsters.forEach(monster => {
+            if(dir === 'left') monster.moveLeft(1);
+            if(dir === 'right') monster.moveRight(1);
+        });
+    }
+
     collideToPlatforms(item) {
         this.platforms.forEach((platform) => {
             if(
@@ -224,13 +235,33 @@ export default class World {
         });
     }
     
+    collideToMonsters(player) {
+        for(let i = this.monsters.length - 1; i >= 0; i--) {
+            const monster = this.monsters[i];
+
+            const collision = getCollisionDetails(player, monster);
+            
+            if (collision === '') return;
+            
+            else if(collision === 'bottom') {
+                player.velocity.y = -128;
+                player.position.y = monster.top - player.height + 1;
+                this.monsters.splice(i, 1);
+                this.player.score += 100;
+            } 
+            else if(collision === 'right' || collision === 'left') {
+                this.loseHandler();
+            }
+        }
+    }
+    
     collideToShurikens(player) {
         for(let i = this.shurikens.length - 1; i >= 0; i--) {
             const shuriken = this.shurikens[i];
 
             if(collides(player, shuriken)) {
                 this.shurikens.splice(i, 1);
-                this.player.score ++;
+                this.player.score += 100;
             }
         }
     }
@@ -294,6 +325,13 @@ export default class World {
             decor.velocity.x *= this.level.friction;
         });
 
+        this.monsters.forEach(monster => {
+            monster.update();
+            monster.velocity.y += this.level.gravity;
+            monster.velocity.x *= this.level.friction;
+            monster.velocity.y *= this.level.friction;
+        });
+
         this.player.update();
         
         this.player.velocity.y += this.level.gravity;
@@ -305,6 +343,8 @@ export default class World {
         this.collideToPlatforms(this.player);
         this.collideObjectToWorld(this.player);
         this.collideToShurikens(this.player);
+        this.collideToMonsters(this.player);
+        this.monsters.forEach(monster => this.collideToPlatforms(monster));
 
         if(this.finishObject && this.player.left > this.finishObject.right) this.winHandler(); // win when hitting specific decoration (compare by decoration name ---> should create decoration name)
     }

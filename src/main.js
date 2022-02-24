@@ -35,9 +35,9 @@ sprites.loadImages().then(() => {
 
         display.clearCanvas();
 
-        const [lay1, lay2, lay3, lay4, lay5, lay6] =  [world.backgrounds, world.decorations, world.platforms, world.blocks, world.shurikens, [world.player]];
+        const [lay1, lay2, lay3, lay4, lay5, lay6, lay7] =  [world.backgrounds, world.decorations, world.platforms, world.blocks, world.shurikens, [world.player], world.monsters];
 
-        [...lay1, ...lay2, ...lay3, ...lay4, ...lay5, ...lay6]
+        [...lay1, ...lay2, ...lay3, ...lay4, ...lay5, ...lay6, ...lay7]
             .forEach((item) => display.drawCropImage(...item.specs));
 
         display.render();

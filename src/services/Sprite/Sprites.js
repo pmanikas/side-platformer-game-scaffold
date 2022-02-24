@@ -24,6 +24,7 @@ export default class Sprites {
             createImageAsync('assets/images/shuriken.png'),
             createImageAsync('assets/images/block.png'),
             createImageAsync('assets/images/sign-right.png'),
+            createImageAsync('assets/images/monster.png'),
         ]);
 
         this.idleLeft = new SpriteItem(images[0], 10);
@@ -44,5 +45,6 @@ export default class Sprites {
         this.shuriken = new SpriteItem(images[15], 8);
         this.block = new SpriteItem(images[16], 1);
         this.signRight = new SpriteItem(images[17], 1);
+        this.monster = new SpriteItem(images[18], 1);
     }
 }
