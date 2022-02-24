@@ -32,6 +32,10 @@ export default class Game {
         this.world.init();
     }
 
+    reset() {
+        this.loadLevel(1);
+    }
+
     loadNextLevel() {
         this.loadLevel(this.currentLevel + 1);
     }
@@ -42,6 +46,13 @@ export default class Game {
         if(this.world.isWinning && !this.isLevelLoading) {
             this.isLevelLoading = true;
             this.loadNextLevel();
+        }
+
+        if(this.world.player.lifes < 0 ) {
+            this.world.player.lifes = 3;
+            this.world.player.score = 0;
+            this.isLevelLoading = true;
+            this.reset();
         }
     }
 }
