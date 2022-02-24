@@ -4,6 +4,7 @@ import Shuriken from './Objects/Shuriken.js';
 import Block from './Objects/Block.js';
 import { collides, getCollisionDetails } from './../../utilities/collisions.js';
 import Object from './Objects/Object.js';
+import Sign from './Objects/Sign.js';
 
 const RIGHT_LIMIT = 0.666;
 const LEFT_LIMIT = 0.333;
@@ -34,7 +35,6 @@ export default class World {
         this.player.init();
         this.player.airResistance = this.level.airResistance;
         this.isWinning = false;
-        console.log(this.level);
     }
  
     createPlatform(x, y, width, type) {            
@@ -42,7 +42,7 @@ export default class World {
     }
 
     createBlock(x, y) {
-        return new Block(x, y, 'large', this.sprites);
+        return new Block(x, y, this.sprites);
     }
 
     createGenericObject(x, y, width, height, image) {
@@ -51,6 +51,10 @@ export default class World {
 
     createShuriken(x, y) {
         return new Shuriken(x, y, this.sprites);
+    }
+
+    createSignRight(x, y) {
+        return new Sign(x, y, this.sprites);
     }
 
     generateMap() {
@@ -102,11 +106,19 @@ export default class World {
                 case '*':
                     this.shurikens.push(this.createShuriken(X, Y));
                     break;
+                case '>':
+                    this.decorations.push(this.createSignRight(X, Y));
+                    break;
                 default:
                     break;
                 }
             });
         });
+
+        this.finishObject = this.decorations.find(decor => decor.type === 'sign');
+
+        console.log(this.finishObject);
+
         
 
         // ******************* //
@@ -294,6 +306,6 @@ export default class World {
         this.collideObjectToWorld(this.player);
         this.collideToShurikens(this.player);
 
-        if(this.scrollOffset >= 15000) this.winHandler(); // win when hitting specific decoration (compare by decoration name ---> should create decoration name)
+        if(this.finishObject && this.player.left > this.finishObject.right) this.winHandler(); // win when hitting specific decoration (compare by decoration name ---> should create decoration name)
     }
 }

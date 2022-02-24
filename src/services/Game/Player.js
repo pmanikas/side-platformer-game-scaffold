@@ -1,13 +1,12 @@
 import { findWidthByRatio } from '../../utilities/images';
-import Object from './Objects/Object';
+// import Object from './Objects/Object';
 
-export default class Player extends Object{
+export default class Player  {
     lifes = 3;
     score = 0;
     height = 128;
 
     constructor(sprites) {
-        super();
         
         this.sprites = sprites;
         this.image = sprites.idleRight;

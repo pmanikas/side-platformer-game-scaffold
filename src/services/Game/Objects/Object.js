@@ -2,11 +2,12 @@ export default class Object {
     velocity = { x: 0, y: 0 };
     currentImageFrame = 0;
 
-    constructor(x, y, width, height, image) {
+    constructor(x, y, width, height, image, type = '') {
         this.width = width;
         this.height = height;
         this.position = { x, y };
         this.image = image;
+        this.type = type;
     }
 
     moveRight(parallaxOffset = 1) {
