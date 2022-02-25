@@ -62,13 +62,17 @@ export default class World {
         return new Monster(x, y, this.sprites);
     }
 
-    generateMap() {
+    resetMap() {
         this.platforms = [];
-        this.backgrounds = null;
+        this.backgrounds = [];
         this.decorations = [];
         this.blocks = [];
         this.shurikens = [];
         this.monsters = [];
+    }
+
+    generateMap() {
+        this.resetMap();
 
         this.backgrounds = [
             this.createGenericObject(0, 0, this.sprites.background.width, this.sprites.background.height, this.sprites.background),
@@ -76,7 +80,7 @@ export default class World {
             this.createGenericObject(0, this.height - this.sprites.sea.height, this.sprites.sea.width, this.sprites.sea.height,  this.sprites.sea),
         ];
 
-        const map = [...this.map].reverse(); // quck way to build bottom up
+        const map = [...this.map].reverse(); // quck way to help build bottom up
 
         const xPositions = [-32];
         map.forEach((row, i) => {
@@ -122,18 +126,6 @@ export default class World {
         });
 
         this.finishObject = this.decorations.find(decor => decor.type === 'sign');
-        
-
-        // ******************* //
-        //    TEST LOCATIONS   //
-        // ******************* //
-
-        // this.platforms.forEach(platform => platform.position.x -= 12000);
-        // // this.backgrounds.forEach(decoration => decoration.position.x -= 12000);
-        // this.scrollOffset = 12000 / 20;
-        // // ******************* //
-        //    TEST LOCATIONS   //
-        // ******************* //
     }
 
     moveOffsetHandler({ dir }) {
@@ -249,7 +241,8 @@ export default class World {
                 this.monsters.splice(i, 1);
                 this.player.score += 100;
             } 
-            else if(collision === 'right' || collision === 'left') {
+
+            else if(collision === 'right' || collision === 'left' || collision === 'top') {
                 this.loseHandler();
             }
         }
@@ -266,7 +259,7 @@ export default class World {
         }
     }
 
-    collideObjectToWorld(object) {
+    collideToWorld(object) {
         if(object.left < this.width * LEFT_LIMIT) {
             if(this.scrollOffset < 0) {
                 if(object.left < 0) object.position.x = 0; 
@@ -299,31 +292,23 @@ export default class World {
         }
     }
 
+    updateItems() {
+        const items = [
+            ...this.platforms,
+            ...this.blocks,
+            ...this.shurikens,
+            ...this.backgrounds,
+            ...this.decorations,
+        ];
+
+        items.forEach(item => {
+            item.update();
+            item.velocity.x *= this.level.friction;
+        });
+    }
+
     update() {
-        this.platforms.forEach(platform => {
-            platform.update();
-            platform.velocity.x *= this.level.friction;
-        });
-
-        this.blocks.forEach(block => {
-            block.update();
-            block.velocity.x *= this.level.friction;
-        });
-
-        this.shurikens.forEach(shuriken => {
-            shuriken.update();
-            shuriken.velocity.x *= this.level.friction;
-        });
-        
-        this.backgrounds.forEach(background => {
-            background.update();
-            background.velocity.x *= this.level.friction;
-        });
-
-        this.decorations.forEach(decor => {
-            decor.update();
-            decor.velocity.x *= this.level.friction;
-        });
+        this.updateItems();
 
         this.monsters.forEach(monster => {
             monster.update();
@@ -341,11 +326,9 @@ export default class World {
         
         this.collideToBlocks(this.player);
         this.collideToPlatforms(this.player);
-        this.collideObjectToWorld(this.player);
+        this.collideToWorld(this.player);
         this.collideToShurikens(this.player);
         this.collideToMonsters(this.player);
         this.monsters.forEach(monster => this.collideToPlatforms(monster));
-
-        if(this.finishObject && this.player.left > this.finishObject.right) this.winHandler(); // win when hitting specific decoration (compare by decoration name ---> should create decoration name)
     }
 }

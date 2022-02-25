@@ -12,6 +12,7 @@ export default class Game {
     http = new HttpService();
     currentLevel = 0;
     isLevelLoading = false;
+    isWinning = false;
 
     constructor(sprites) {
         this.sprites = sprites;
@@ -19,6 +20,7 @@ export default class Game {
     }
     
     async loadLevel(level = 1) {
+        if(!levels[level - 1]) return this.finishGameHandler();
         return this.http.get(levels[level - 1])
             .then((levelDetails) => {
                 this.currentLevel = level;
@@ -36,23 +38,36 @@ export default class Game {
         this.loadLevel(1);
     }
 
+    finishGameHandler() {
+        this.reset();
+    }
+
     loadNextLevel() {
         this.loadLevel(this.currentLevel + 1);
+    }
+
+    winHandler() {
+        if(!this.isLevelLoading) {
+            console.log('YOU WON');
+            this.isLevelLoading = true;
+            this.loadNextLevel();
+        }
+    }
+
+    loseHandler() {
+        this.world.player.lifes = 3;
+        this.world.player.score = 0;
+        this.isLevelLoading = true;
+        this.reset();
     }
     
     update() {
         this.world.update();
-        
-        if(this.world.isWinning && !this.isLevelLoading) {
-            this.isLevelLoading = true;
-            this.loadNextLevel();
-        }
 
-        if(this.world.player.lifes < 0 ) {
-            this.world.player.lifes = 3;
-            this.world.player.score = 0;
-            this.isLevelLoading = true;
-            this.reset();
+        if(this.world.player.lifes < 0 ) this.loseHandler();
+
+        if(this.world.player.left > this.world.finishObject.right) {
+            this.winHandler();
         }
     }
 }
