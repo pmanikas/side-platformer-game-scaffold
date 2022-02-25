@@ -18,9 +18,6 @@ export default class Sprites {
             createImageAsync('assets/images/background.png'),
             createImageAsync('assets/images/hills.png'),
             createImageAsync('assets/images/sea.png'),
-            createImageAsync('assets/images/platform-left.png'),
-            createImageAsync('assets/images/platform-right.png'),
-            createImageAsync('assets/images/platform-full.png'),
             createImageAsync('assets/images/shuriken.png'),
             createImageAsync('assets/images/block.png'),
             createImageAsync('assets/images/sign-right.png'),
@@ -39,12 +36,9 @@ export default class Sprites {
         this.background = new SpriteItem(images[9], 1);
         this.hills = new SpriteItem(images[10], 1);
         this.sea = new SpriteItem(images[11], 1);
-        this.platformLeft = new SpriteItem(images[12], 1);
-        this.platformRight = new SpriteItem(images[13], 1);
-        this.platformFull = new SpriteItem(images[14], 1);
-        this.shuriken = new SpriteItem(images[15], 8);
-        this.block = new SpriteItem(images[16], 1);
-        this.signRight = new SpriteItem(images[17], 1);
-        this.monster = new SpriteItem(images[18], 1);
+        this.shuriken = new SpriteItem(images[12], 8);
+        this.block = new SpriteItem(images[13], 1);
+        this.signRight = new SpriteItem(images[14], 1);
+        this.monster = new SpriteItem(images[15], 1);
     }
 }

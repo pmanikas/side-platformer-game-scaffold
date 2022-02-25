@@ -2,9 +2,6 @@ import Object from './Object.js';
 
 const getPlatformImageByType = (type, sprites) => {
     switch (type) {
-    case 'full': return sprites.platformFull;
-    case 'left': return sprites.platformLeft;
-    case 'right': return sprites.platformRight;
     case 'middle': return sprites.platform;
     default: return sprites.platform;
     }

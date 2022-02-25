@@ -22,7 +22,6 @@ export default class World {
     width = 1024;
     height = 768;
     level = null;
-    isWinning = false;
 
     constructor(sprites) {
         this.sprites = sprites;
@@ -99,15 +98,6 @@ export default class World {
                 switch (point) {
                 case '_':
                     this.platforms.push(this.createPlatform(X, Y, width, 'middle'));
-                    break;
-                case '{':
-                    this.platforms.push(this.createPlatform(X, Y, width, 'left'));
-                    break;
-                case '}':
-                    this.platforms.push(this.createPlatform(X, Y, width, 'right'));
-                    break;
-                case '+':
-                    this.platforms.push(this.createPlatform(X, Y, width, 'full'));
                     break;
                 case '#':
                     this.blocks.push(this.createBlock(X, Y));
@@ -283,13 +273,6 @@ export default class World {
     loseHandler() {
         this.player.lifes -= 1;
         this.init();
-    }
-
-    winHandler() {
-        if(!this.isWinning) {
-            console.log('YOU WON');
-            this.isWinning = true;
-        }
     }
 
     updateItems() {
