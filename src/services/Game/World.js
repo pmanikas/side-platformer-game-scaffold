@@ -226,7 +226,7 @@ export default class World {
             if (collision === '') return;
             
             else if(collision === 'bottom') {
-                player.velocity.y = -128;
+                player.velocity.y -= 96;
                 player.position.y = monster.top - player.height + 1;
                 this.monsters.splice(i, 1);
                 this.player.score += 100;
