@@ -203,12 +203,14 @@ export default class World {
             if (collision === '') return;
 
             else if(collision === 'left') {
-                player.position.x = block.right - player.velocity.x;
+                player.velocity.x *= -1;
+                player.position.x = block.right + player.velocity.x;
             } else if(collision === 'right') {
-                player.position.x = block.left - player.width - player.velocity.x;
+                player.velocity.x *= -1;
+                player.position.x = block.left - player.width + player.velocity.x + 1;
             } else if(collision === 'top') {
                 player.position.y = block.bottom;
-                player.velocity.y *= -1;
+                player.velocity.y = 0;
                 console.log('aouts, my head');
             } else if(collision === 'bottom') {
                 player.velocity.y = 0;
@@ -232,7 +234,7 @@ export default class World {
                 this.player.score += 100;
             } 
 
-            else if(collision === 'right' || collision === 'left' || collision === 'top') {
+            else if(['right', 'left', 'top'].includes(collision)) {
                 this.loseHandler();
             }
         }
@@ -265,9 +267,7 @@ export default class World {
             }
         }
     
-        if(object.top >= this.height) {
-            this.loseHandler();
-        }
+        if(object.top >= this.height) this.loseHandler();
     }
 
     loseHandler() {
@@ -290,6 +290,15 @@ export default class World {
         });
     }
 
+    handleCollisions() {
+        this.collideToBlocks(this.player);
+        this.collideToPlatforms(this.player);
+        this.collideToWorld(this.player);
+        this.collideToShurikens(this.player);
+        this.collideToMonsters(this.player);
+        this.monsters.forEach(monster => this.collideToPlatforms(monster));
+    }
+
     update() {
         this.updateItems();
 
@@ -307,11 +316,6 @@ export default class World {
         this.player.velocity.x *= this.level.friction;
         this.player.velocity.y *= this.level.friction;
         
-        this.collideToBlocks(this.player);
-        this.collideToPlatforms(this.player);
-        this.collideToWorld(this.player);
-        this.collideToShurikens(this.player);
-        this.collideToMonsters(this.player);
-        this.monsters.forEach(monster => this.collideToPlatforms(monster));
+        this.handleCollisions();
     }
 }
