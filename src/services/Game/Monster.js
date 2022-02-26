@@ -3,8 +3,8 @@ import { findWidthByRatio } from '../../utilities/images';
 export default class Monster {
     constructor(x, y, sprites) {
         this.image = sprites.monster;
-        this.width = 96;
-        this.height = 96;
+        this.width = 64;
+        this.height = 64;
         this.position = {
             x,
             y

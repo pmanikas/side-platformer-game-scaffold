@@ -13,15 +13,12 @@ const LEFT_LIMIT = 0.333;
 const BLOCK_SIZE = 128;
 
 export default class World {
-    platforms = [];
-    blocks = [];
-    backgrounds = [];
-    decorations = [];
-    shurikens = [];
     scrollOffset = 0;
     width = 1024;
     height = 768;
     level = null;
+
+    test = false;
 
     constructor(sprites) {
         this.sprites = sprites;
@@ -35,6 +32,11 @@ export default class World {
         this.player.init();
         this.player.airResistance = this.level.airResistance;
         this.isWinning = false;
+    }
+
+    loseHandler() {
+        this.player.lifes -= 1;
+        this.init();
     }
  
     createPlatform(x, y, width, type) {            
@@ -121,33 +123,21 @@ export default class World {
     moveOffsetHandler({ dir }) {
         if(dir === 'left') this.scrollOffset += 1;
         if(dir === 'right') this.scrollOffset -= 1;
-        this.movePlatforms({ dir });
-        this.moveBlocks({ dir });
+
+        const items = [
+            ...this.platforms,
+            ...this.blocks,
+            ...this.decorations,
+            ...this.shurikens,
+            ...this.monsters
+        ];
+
+        items.forEach(item => {
+            if(dir === 'left') item.moveLeft();
+            if(dir === 'right') item.moveRight();
+        });
+
         this.moveBackgrounds({ dir });
-        this.moveDecorations({ dir });
-        this.moveShurikens({ dir });
-        this.moveMonsters({ dir });
-    }
-
-    movePlatforms({ dir }) {
-        this.platforms.forEach(platform => {
-            if(dir === 'left') platform.moveLeft();
-            if(dir === 'right') platform.moveRight();
-        });
-    }
-
-    moveBlocks({ dir }) {
-        this.blocks.forEach(block => {
-            if(dir === 'left') block.moveLeft();
-            if(dir === 'right') block.moveRight();
-        });
-    }
-
-    moveShurikens({ dir }) {
-        this.shurikens.forEach(shuriken => {
-            if(dir === 'left') shuriken.moveLeft();
-            if(dir === 'right') shuriken.moveRight();
-        });
     }
 
     moveBackgrounds({ dir }) {
@@ -168,29 +158,15 @@ export default class World {
         });
     }
 
-    moveDecorations({ dir }) {
-        this.decorations.forEach(decor => {
-            if(dir === 'left') decor.moveLeft(1);
-            if(dir === 'right') decor.moveRight(1);
-        });
-    }
-
-    moveMonsters({ dir }) {
-        this.monsters.forEach(monster => {
-            if(dir === 'left') monster.moveLeft(1);
-            if(dir === 'right') monster.moveRight(1);
-        });
-    }
-
     collideToPlatforms(item) {
         this.platforms.forEach((platform) => {
             if(
                 item.bottom <= platform.top && 
-                item.bottom + item.velocity.y >= platform.position.y &&
+                item.bottom + item.velocity.y >= platform.top &&
                 item.right >= platform.left &&
                 item.left <= platform.right
             ) {
-                item.position.y = platform.position.y - item.height;
+                item.position.y = platform.top - item.height;
                 item.velocity.y = 0;
             }
         });
@@ -270,9 +246,15 @@ export default class World {
         if(object.top >= this.height) this.loseHandler();
     }
 
-    loseHandler() {
-        this.player.lifes -= 1;
-        this.init();
+    handleCollisions() {
+        this.collideToBlocks(this.player);
+        this.collideToPlatforms(this.player);
+        this.collideToWorld(this.player);
+        this.collideToShurikens(this.player);
+        this.collideToMonsters(this.player);
+        this.monsters.forEach(monster => {
+            this.collideToPlatforms(monster);
+        });
     }
 
     updateItems() {
@@ -290,32 +272,30 @@ export default class World {
         });
     }
 
-    handleCollisions() {
-        this.collideToBlocks(this.player);
-        this.collideToPlatforms(this.player);
-        this.collideToWorld(this.player);
-        this.collideToShurikens(this.player);
-        this.collideToMonsters(this.player);
-        this.monsters.forEach(monster => this.collideToPlatforms(monster));
-    }
-
-    update() {
-        this.updateItems();
-
-        this.monsters.forEach(monster => {
+    updateMonsters() {
+        this.monsters.forEach((monster, i) => {
             monster.update();
             monster.velocity.y += this.level.gravity;
             monster.velocity.x *= this.level.friction;
             monster.velocity.y *= this.level.friction;
-        });
 
+            if(monster.left < this.width) monster.position.x -= 3;
+            if(monster.top > this.height) this.monsters.splice(i, 1);
+            
+        });
+    }
+
+    updatePlayer() {
         this.player.update();
-        
         this.player.velocity.y += this.level.gravity;
-        
         this.player.velocity.x *= this.level.friction;
         this.player.velocity.y *= this.level.friction;
-        
+    }
+
+    update() {
+        this.updatePlayer();
+        this.updateItems();
+        this.updateMonsters();
         this.handleCollisions();
     }
 }
