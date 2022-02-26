@@ -144,8 +144,8 @@ export default class World {
         this.backgrounds.forEach((background, i) =>  {
             let speed = 1;
 
-            if(i === 0) speed = 0; // background
-            if(i === 1) speed = 1; // hill
+            if(i === 0) speed = -0.1; // background
+            if(i === 1) speed = 0.75; // hill
             if(i === 2) speed = 4.5; // sea
 
             if(dir === 'left') background.moveLeft((speed + 0.5) * 0.2);
