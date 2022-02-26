@@ -133,8 +133,8 @@ export default class World {
         ];
 
         items.forEach(item => {
-            if(dir === 'left') item.moveLeft();
-            if(dir === 'right') item.moveRight();
+            if(dir === 'left') item.offsetLeft();
+            if(dir === 'right') item.offsetRight();
         });
 
         this.moveBackgrounds({ dir });
@@ -277,11 +277,22 @@ export default class World {
             monster.update();
             monster.velocity.y += this.level.gravity;
             monster.velocity.x *= this.level.friction;
-            monster.velocity.y *= this.level.friction;
+            monster.velocity.y *= this.level.friction;            
 
-            if(monster.left < this.width) monster.position.x -= 3;
-            if(monster.top > this.height) this.monsters.splice(i, 1);
+            const lastDirection = monster.lastDirection;
+
+            if(lastDirection === 'left' && monster.left < this.width) monster.moveLeft(2);
+            else if(lastDirection === 'right' && monster.right > 0) {
+                monster.moveRight(2);
+            }
+
+            this.blocks.forEach(block => {
+                const collision = getCollisionDetails(monster, block);
+                if(collision === 'left') monster.moveRight(2);
+                else if(collision === 'right') monster.moveLeft(2);
+            });
             
+            if(monster.top > this.height) this.monsters.splice(i, 1); 
         });
     }
 

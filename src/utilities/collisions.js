@@ -52,6 +52,7 @@ const getCollisionDetails = (object1, object2) => {
                 }
             }
         }
+        else return 'none';
     }
 };
 

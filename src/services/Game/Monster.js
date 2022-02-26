@@ -1,16 +1,15 @@
-import { findWidthByRatio } from '../../utilities/images';
-
 export default class Monster {
     constructor(x, y, sprites) {
-        this.image = sprites.monster;
+        this.sprites = sprites;
+        this.image = sprites.monsterBubbleIdleLeft;
         this.width = 64;
         this.height = 64;
         this.position = {
             x,
             y
         };
-        this.lastDirection = 'right';
-        this.direction = 'right';
+        this.lastDirection = 'left';
+        this.direction = 'left';
         this.airResistance = 1;
         this.currentAirResistance = 0;
         this.currentImageFrame = 0;
@@ -18,6 +17,10 @@ export default class Monster {
             x: 0,
             y: 0,
         };
+    }
+
+    clone() {
+        return new Monster(this.position.x, this.position.y, this.sprites);
     }
 
 
@@ -87,16 +90,24 @@ export default class Monster {
         return this.velocity.y === 0;
     }
 
-    moveRight() {
+    moveRight(speed = 5) {
         this.lastDirection = 'right';
         this.direction = 'right';
-        this.velocity.x += 5;
+        this.velocity.x += speed;
     }
     
-    moveLeft() {
+    moveLeft(speed = 5) {
         this.lastDirection = 'left';
         this.direction = 'left';
-        this.velocity.x -= 5;
+        this.velocity.x -= speed;
+    }
+
+    offsetRight(speed = 5) {
+        this.velocity.x += speed;
+    }
+    
+    offsetLeft(speed = 5) {
+        this.velocity.x -= speed;
     }
 
     jump() {
@@ -110,37 +121,9 @@ export default class Monster {
     }
 
     handleImageUpdate() {
-        if(this.isTouchingGround) {
-            if(this.isMovingRight) this.image = this.sprites.runRight;
+        if(this.isLookingLeft) this.image = this.sprites.monsterBubbleIdleLeft;
             
-            else if(this.isMovingLeft) this.image = this.sprites.runLeft;
-
-            else if(this.isNotMoving) {
-                if(this.isLookingLeft)  this.image = this.sprites.idleLeft;
-                
-                else if(this.isLookingRight)  {
-                    this.image = this.sprites.idleRight;
-                }
-            }
-        } 
-        
-        else if(this.isMovingUpwards) {
-            if(this.isLookingLeft) this.image = this.sprites.jumpLeft;
-            
-            else if(this.isLookingRight) this.image = this.sprites.jumpRight;
-        } 
-        
-        else if(this.isMovingDownwards) {
-            if(this.isLookingLeft) {
-                this.image = this.isGliding ? this.sprites.glideLeft : this.sprites.jumpLeft;
-            } 
-            
-            else if(this.isLookingRight) {
-                this.image = this.isGliding ? this.sprites.glideRight : this.sprites.jumpRight;
-            }
-        }
-
-        this.width = findWidthByRatio({ widthA: this.image.width, heightA: this.image.height, heightB: this.height });
+        else if(this.isLookingRight) this.image = this.sprites.monsterBubbleIdleRight;
     }
 
     handleImageAnimationLoop() {
@@ -152,6 +135,8 @@ export default class Monster {
         // this.handleImageUpdate();
         this.handleImageAnimationLoop();
 
+        this.handleImageUpdate();
+        
         if(this.isAboutToTouchGround) this.currentAirResistance = 0;
 
         this.velocity.y -= this.currentAirResistance;

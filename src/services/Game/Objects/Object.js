@@ -18,6 +18,14 @@ export default class Object {
         this.velocity.x -= (5 * parallaxOffset);
     }
 
+    offsetRight(parallaxOffset = 1) {
+        this.velocity.x += (5 * parallaxOffset);
+    }
+    
+    offsetLeft(parallaxOffset = 1) {
+        this.velocity.x -= (5 * parallaxOffset);
+    }
+
     get top() { return this.position.y; }
 
     get right() { return this.position.x + this.width; }
